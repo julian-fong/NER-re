@@ -20,15 +20,32 @@ feature_classes = {
 }
 
 def decompose_sentence(sentence):
-    tenant_re = "TENANT: "+re.search(r'Agreement to Lease(.*)TENANT', sentence).group(1)
-    tenant_re2 = "TENANT: "+re.search(r'TENANT(.*)LANDLORD', sentence).group(1) #might have both tenant and landlord
-    landlord_re = "LANDLORD: "+re.search(r'LANDLORD:(.*)ADDRESS OF LANDLORD', sentence).group(1)
-    term_of_lease_re = "TERM OF LEASE: "+re.search(r"premises known as:(.*)3.", sentence).group(1)
-    address_re = "ADDRESS: "+re.search(r'premises known as:(.*)RENT', sentence).group(1)
+    # print(sentence)
+    try:
+        tenant_re = "TENANT: "+re.search(r'agreement to lease(.*)tenant', sentence).group(1)[:100]
+    except AttributeError:
+        tenant_re = None
+    try:
+        tenant_re2 = "TENANT/LANDLORD: "+re.search(r'tenant(.*)landlord', sentence).group(1)[:100] #might have both tenant and landlord
+    except AttributeError:
+        tenant_re2 = None
+    try:
+        landlord_re = "LANDLORD: "+re.search(r'landlord:(.*)address of landlord', sentence).group(1)[:100]
+    except AttributeError:
+        landlord_re = None
+    try:
+        term_of_lease_re = "TERM OF LEASE: "+re.search(r"premises known as:(.*)3.", sentence).group(1)[:100]
+    except AttributeError:
+        term_of_lease_re = None
+    try:
+        address_re = "ADDRESS: "+re.search(r'premises known as:(.*)rent', sentence).group(1)[:100]
+    except AttributeError:
+        address_re = None
 
     return [tenant_re, tenant_re2, landlord_re, term_of_lease_re, address_re]
 
 def normalize(sentence):
+    sentence = sentence.replace("_", " ")
     return sentence.replace("\"", '\'').strip().lower()
 
 def pretokenization(sentence):
